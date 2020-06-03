@@ -1,0 +1,37 @@
+# Runs Cloudstate, grpcwebproxy and the friends service
+
+version: '3.2'
+
+services:
+
+  cloudstate:
+    image: cloudstateio/cloudstate-proxy-dev-mode:latest
+    container_name: cloudstate
+    ports:
+      - "9000:9000"
+    command: -Dcloudstate.proxy.user-function-port=8080 -Dcloudstate.proxy.user-function-interface=javafriends
+    networks:
+      - net1
+
+  javafriends:
+    image: ${REGISTRY?Specify REGISTRY as an environment variable or create a .env file in this folder}/java-friends:latest
+    container_name: javafriends
+    environment:
+      - DEBUG="cloudstate"
+      - HOST=javafriends
+      - PORT=8080
+    networks:
+      - net1
+
+  grpcwebproxy:
+    image: casperlabs/grpcwebproxy:latest
+    container_name: grpcwebproxy
+    ports:
+      - "8080:8090"
+    command: ./grpcwebproxy --run_tls_server=false --backend_addr=cloudstate:9000 --backend_tls_noverify --server_http_debug_port=8090 --allowed_origins=${ALLOWED_ORIGINS?Specify ALLOWED_ORIGINS as an environment variable or create a .env file in this folder}
+    networks:
+      - net1
+
+networks:
+  net1:
+    driver: bridge
