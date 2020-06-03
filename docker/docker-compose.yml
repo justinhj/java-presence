@@ -1,4 +1,4 @@
-# Runs Cloudstate, grpcwebproxy and the friends service
+# Runs Cloudstate, grpcwebproxy and the presence service
 
 version: '3.2'
 
@@ -9,16 +9,16 @@ services:
     container_name: cloudstate
     ports:
       - "9000:9000"
-    command: -Dcloudstate.proxy.user-function-port=8080 -Dcloudstate.proxy.user-function-interface=javafriends
+    command: -Dcloudstate.proxy.user-function-port=8080 -Dcloudstate.proxy.user-function-interface=javapresence
     networks:
       - net1
 
-  javafriends:
-    image: ${REGISTRY?Specify REGISTRY as an environment variable or create a .env file in this folder}/java-friends:latest
-    container_name: javafriends
+  javapresence:
+    image: ${REGISTRY?Specify REGISTRY as an environment variable or create a .env file in this folder}/java-presence:latest
+    container_name: javapresence
     environment:
       - DEBUG="cloudstate"
-      - HOST=javafriends
+      - HOST=javapresence
       - PORT=8080
     networks:
       - net1

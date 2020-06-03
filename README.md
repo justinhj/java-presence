@@ -1,8 +1,8 @@
 # Cloudstate samples
 
-## Friends service - Java implementation
+## Chat Presence service - Java implementation
 
-This is an implementation of the friends service, which is part of Lightbend Cloudstate Chat sample.
+This is an implementation of the presence service, which is part of Lightbend Cloudstate Chat sample.
 
 The user code is written in Java and uses a 100% Java toolchain (no Scala tools needed).
 
@@ -21,7 +21,7 @@ mvn package
 
 ### Running
 
-java -jar target/friends-0.1.0.jar
+java -jar target/presence-0.1.0.jar
 
 ### Build the Docker image
 
@@ -36,8 +36,3 @@ DOCKER_PUBLISH_TO=YourDockerHubName ./dockerbuild.sh
 Running in a Kubernetes cluster
 
 Running in Lightbend Cloudstate (managed platform)
-
-
-
-
-

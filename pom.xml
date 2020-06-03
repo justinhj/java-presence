@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.cloudstate</groupId>
-  <artifactId>friends</artifactId>
+  <artifactId>presence</artifactId>
   <packaging>jar</packaging>
   <version>0.1-SNAPSHOT</version>
 
@@ -154,7 +154,7 @@
                   <resource>reference.conf</resource>
                </transformer>
                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                <mainClass>io.cloudstate.samples.friends.Main</mainClass>
+                <mainClass>io.cloudstate.samples.presence.Main</mainClass>
               </transformer>
               </transformers>
             </configuration>
