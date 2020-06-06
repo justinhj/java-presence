@@ -1,10 +1,12 @@
 package io.cloudstate.samples.presence;
 
-import java.util.Arrays;
-import java.util.Iterator;
+// import java.util.Arrays;
+// import java.util.Iterator;
+import java.util.Optional;
+import java.util.function.Consumer;
 
-import akka.NotUsed;
-import akka.stream.javadsl.Source;
+// import akka.NotUsed;
+// import akka.stream.javadsl.Source;
 import io.cloudstate.javasupport.crdt.*;
 import cloudstate.samples.chat.presence.grpc.*;
 
@@ -12,10 +14,12 @@ import cloudstate.samples.chat.presence.grpc.*;
 @CrdtEntity
 public class PresenceEntity {
 
-  private final Vote presence;
+  private Vote presence = null;
+  private int users = 0;
 
   public PresenceEntity(Vote presence) {
     this.presence = presence;
+    System.out.println("Created entity");
 
   }
 
@@ -34,12 +38,41 @@ public class PresenceEntity {
    * removing our vote if this is the last connection to this CRDT.
    */
 
+  private Optional<Vote>changeHandler(SubscriptionContext subcription) {
+    System.out.println("change!");
+
+    return Optional.empty();
+  }
+
+  private Consumer<StreamCancelledContext> cancelHandler = a -> {
+    users -= 1;
+    if (users == 0) {
+      presence.vote(false);
+    }
+
+    System.out.println("cancel! users " + users);
+  };
+
   @CommandHandler
-  public Source<Empty, NotUsed> connect(User user, CommandContext ctx) {
+  public Empty connect(StreamedCommandContext<Vote> ctx) {
 
-    //presence.
+    if(ctx.isStreamed()) {
+      ctx.onChange(s -> changeHandler(s));
+      ctx.onCancel(cancelHandler);
 
-    return null;
+      users += 1;
+      if (users ==1) {
+        presence.vote(true);
+      }
+
+      System.out.println("users = " + users);
+
+    }
+    else {
+      System.out.println("not streamed");
+      ctx.fail("Call to connect must be streamed");
+    }
+    return Empty.getDefaultInstance();
   }
 
 }

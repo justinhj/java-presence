@@ -7,6 +7,7 @@ public class Main {
 
 	public static void main(String[] args) throws Exception {
 
+    System.out.println("Registering with Cloudstate");
     new CloudState()
         .registerCrdtEntity(
             PresenceEntity.class,

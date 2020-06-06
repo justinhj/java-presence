@@ -32,6 +32,7 @@
     <jetty.alpn.agent.version>2.0.10</jetty.alpn.agent.version>
     <grpc.version>1.29.0</grpc.version>
     <project.encoding>UTF-8</project.encoding>
+    <docker.name>justinhj/java-presence</docker.name>
   </properties>
 
   <dependencies>
@@ -135,7 +136,6 @@
         </executions>
       </plugin>
 
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -161,6 +161,25 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.26.1</version>
+        <configuration>
+
+        </configuration>
+        <executions>
+          <execution>
+            <id>build-docker-image</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 </project>
