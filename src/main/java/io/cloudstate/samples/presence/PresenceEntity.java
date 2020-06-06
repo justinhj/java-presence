@@ -17,7 +17,7 @@ public class PresenceEntity {
     System.out.println("Created entity");
   }
 
-  private Optional<Vote>changeHandler(SubscriptionContext subcription) {
+  private Optional<Empty>changeHandler(SubscriptionContext subcription) {
     System.out.println("change!");
 
     return Optional.empty();
@@ -39,14 +39,16 @@ public class PresenceEntity {
    * changes, if the online status has changed since the last message we pushed, we push
    * it.
    */
-  @CommandHandler OnlineStatus monitor(User user, StreamedCommandContext<Vote> ctx) {
+  @CommandHandler OnlineStatus monitor(User user, StreamedCommandContext<OnlineStatus> ctx) {
     Boolean onlineStatus = presence.isAtLeastOne();
 
     if(ctx.isStreamed()) {
       ctx.onChange(subCtx ->
        {
-          System.out.println("monitor: " + user.getName() + " return {" + onlineStatus + "}");
-          return Optional.of(presence);
+          Boolean newOnlineStatus = presence.isAtLeastOne();
+
+          System.out.println("monitor: " + user.getName() + " return {" + newOnlineStatus + "}");
+          return Optional.of(OnlineStatus.newBuilder().setOnline(newOnlineStatus).build());
        });
     }
 
@@ -68,7 +70,7 @@ public class PresenceEntity {
    * removing our vote if this is the last connection to this CRDT.
    */
   @CommandHandler
-  public Empty connect(StreamedCommandContext<Vote> ctx) {
+  public Empty connect(StreamedCommandContext<Empty> ctx) {
 
     if(ctx.isStreamed()) {
       ctx.onChange(s -> changeHandler(s));
