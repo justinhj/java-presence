@@ -45,3 +45,4 @@ target-sbt
 .vscode/
 dependency-reduced-pom.xml
 docker/.env
+.factorypath

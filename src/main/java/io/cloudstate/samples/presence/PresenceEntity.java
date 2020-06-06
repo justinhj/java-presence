@@ -4,21 +4,24 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import io.cloudstate.javasupport.crdt.*;
 import cloudstate.samples.chat.presence.grpc.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/** Presence service is a CRDT entity that takes care of an OrSet of a users presence. */
+/** Presence service is a CRDT entity that uses Vote to manage user online presence. */
 @CrdtEntity
 public class PresenceEntity {
+  private static final Logger logger = LogManager.getLogger(PresenceEntity.class);
 
   private Vote presence = null;
   private int users = 0;
 
   public PresenceEntity(Vote presence) {
     this.presence = presence;
-    System.out.println("Created entity");
+    logger.debug("Created entity");
   }
 
   private Optional<Empty>changeHandler(SubscriptionContext subcription) {
-    System.out.println("change!");
+    logger.debug("change!");
 
     return Optional.empty();
   }
@@ -29,7 +32,7 @@ public class PresenceEntity {
       presence.vote(false);
     }
 
-    System.out.println("cancel! users " + users);
+    logger.debug("cancel! users " + users);
   };
 
   /**
@@ -47,12 +50,12 @@ public class PresenceEntity {
        {
           Boolean newOnlineStatus = presence.isAtLeastOne();
 
-          System.out.println("monitor: " + user.getName() + " return {" + newOnlineStatus + "}");
+          logger.debug("monitor: " + user.getName() + " return {" + newOnlineStatus + "}");
           return Optional.of(OnlineStatus.newBuilder().setOnline(newOnlineStatus).build());
        });
     }
 
-    System.out.println("monitor: " + user.getName() + " return {" + onlineStatus + "}");
+    logger.debug("monitor: " + user.getName() + " return {" + onlineStatus + "}");
     return OnlineStatus.newBuilder().setOnline(onlineStatus).build();
   }
 
@@ -81,11 +84,11 @@ public class PresenceEntity {
         presence.vote(true);
       }
 
-      System.out.println("users = " + users);
+      logger.debug("users = " + users);
 
     }
     else {
-      System.out.println("not streamed");
+      logger.debug("not streamed");
       ctx.fail("Call to connect must be streamed");
     }
     return Empty.getDefaultInstance();
