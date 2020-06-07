@@ -20,21 +20,6 @@ public class PresenceEntity {
     logger.debug("Created entity");
   }
 
-  private Optional<Empty>changeHandler(SubscriptionContext subcription) {
-    logger.debug("change!");
-
-    return Optional.empty();
-  }
-
-  private Consumer<StreamCancelledContext> cancelHandler = a -> {
-    users -= 1;
-    if (users == 0) {
-      presence.vote(false);
-    }
-
-    logger.debug("cancel! users " + users);
-  };
-
   /**
    * User presence monitoring call.
    *
@@ -43,20 +28,27 @@ public class PresenceEntity {
    * it.
    */
   @CommandHandler OnlineStatus monitor(User user, StreamedCommandContext<OnlineStatus> ctx) {
-    Boolean onlineStatus = presence.isAtLeastOne();
+    boolean onlineStatus[] = { presence.isAtLeastOne() };
 
     if(ctx.isStreamed()) {
       ctx.onChange(subCtx ->
        {
-          Boolean newOnlineStatus = presence.isAtLeastOne();
+          boolean previousOnlineStatus = onlineStatus[0];
+          boolean newOnlineStatus = presence.isAtLeastOne();
+          onlineStatus[0] = newOnlineStatus;
 
-          logger.debug("monitor: " + user.getName() + " return {" + newOnlineStatus + "}");
-          return Optional.of(OnlineStatus.newBuilder().setOnline(newOnlineStatus).build());
+          if(newOnlineStatus != previousOnlineStatus) {
+            logger.debug("monitor: " + user.getName() + " return {" + newOnlineStatus + "}");
+            return Optional.of(OnlineStatus.newBuilder().setOnline(newOnlineStatus).build());
+          } else {
+            logger.debug("monitor: " + user.getName() + " status unchanged");
+            return Optional.empty();
+          }
        });
     }
 
     logger.debug("monitor: " + user.getName() + " return {" + onlineStatus + "}");
-    return OnlineStatus.newBuilder().setOnline(onlineStatus).build();
+    return OnlineStatus.newBuilder().setOnline(onlineStatus[0]).build();
   }
 
    /**
@@ -76,15 +68,27 @@ public class PresenceEntity {
   public Empty connect(StreamedCommandContext<Empty> ctx) {
 
     if(ctx.isStreamed()) {
-      ctx.onChange(s -> changeHandler(s));
-      ctx.onCancel(cancelHandler);
+
+      ctx.onChange(s -> {
+        logger.debug("connect: change!");
+        return Optional.empty();
+      });
+
+      ctx.onCancel(a -> {
+        users -= 1;
+        if (users == 0) {
+          presence.vote(false);
+        }
+
+        logger.debug("connect: cancelled stream. users = {}", users);
+      });
 
       users += 1;
       if (users ==1) {
         presence.vote(true);
       }
 
-      logger.debug("users = " + users);
+      logger.debug("users = {}", users);
 
     }
     else {
