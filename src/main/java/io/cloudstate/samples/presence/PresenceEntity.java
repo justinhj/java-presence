@@ -28,6 +28,9 @@ public class PresenceEntity {
    * it.
    */
   @CommandHandler OnlineStatus monitor(User user, StreamedCommandContext<OnlineStatus> ctx) {
+    // Note we store the online status in an array for each call to monitor
+    // even though it is a single boolean, as this lets us capture the object
+    // in onChange callback's environment below.
     boolean onlineStatus[] = { presence.isAtLeastOne() };
 
     if(ctx.isStreamed()) {
